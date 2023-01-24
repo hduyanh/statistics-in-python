@@ -1,11 +1,24 @@
 import pandas as pd
 import numpy as np
+import os
+import warnings
 
-CURRENT_FILE_NAME = "Real_es.csv"
+warnings.filterwarnings('ignore')  # ignore warnings
 
-def file_reader(file_name):
+CURRENT_FILE_NAME = "real_es.csv"
+FILE_SEPERATOR = ','
+
+def file_reader(file_name, seperator):
     # reading csv file to pandas dataframe
-    return pd.read_csv(file_name)
+    return pd.read_csv(file_name, seperator)
+
+def file_information(file_data):
+    # Getting information about data
+    length_rows = len(file_data)
+    length_columns = len(file_data.columns)
+    columns_header = list(file_data.columns)
+    df_data_type = file_data.dtypes
+    print(f"This file has: {length_rows} rows, and {length_columns} columns.\nColumns: \n{columns_header}\nDatatypes:\n{df_data_type}")
 
 def file_modifier(file_data):
     # replace string in 'Price' with float
@@ -25,14 +38,26 @@ def file_filter(complete_data):
 def covariance_calculator(filtered_file):
     # calculating covariance
     covariance = np.cov(filtered_file['meter_price'],filtered_file['square_meter'])
-    print(covariance[1][0])
+    print('C=', round(covariance[1][0], 4))
+
+def correlation_coefficient_calculator(filtered_file):
+    # calculating correlation
+    correlation = np.corrcoef(filtered_file['meter_price'],filtered_file['square_meter'])
+    rounded_correlation = round(correlation[1][0], 4)
+    # calculating coefficient
+    coefficient = round((rounded_correlation ** 2 * 100), 2)
+    coefficient_percent = f"{coefficient}%"
+    print('r=', rounded_correlation)
+    print('r^2=', coefficient_percent)
 
 
 def main():
-    file_data = file_reader(CURRENT_FILE_NAME)
+    file_data = file_reader(CURRENT_FILE_NAME, FILE_SEPERATOR)
+    file_info = file_information(file_data)
     modified_file = file_modifier(file_data)
-    filtred_file = file_filter(modified_file)
-    covariance = covariance_calculator(filtred_file)
+    filtered_file = file_filter(modified_file)
+    covariance_calculation = covariance_calculator(filtered_file)
+    correlation_coefficient_calculaton = correlation_coefficient_calculator(filtered_file)
 
 
 # starting point of file
